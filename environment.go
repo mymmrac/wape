@@ -1,8 +1,13 @@
 package wasmgate
 
 import (
+	"crypto/rand"
 	"io"
 	"io/fs"
+	"os"
+	"path/filepath"
+	"runtime"
+	"strings"
 	"time"
 
 	extism "github.com/extism/go-sdk"
@@ -121,7 +126,7 @@ type Environment struct {
 	NanoSleepFromHost bool
 
 	// ==== Start Functions ====
-	// Defaults to "_start".
+	// Defaults to none.
 
 	// StartFunctions configures the functions to call after the module is instantiated.
 	StartFunctions []string
@@ -185,7 +190,64 @@ func (e *Environment) MakeModuleConfig() wazero.ModuleConfig {
 	if e.ModuleConfig != nil {
 		return e.ModuleConfig
 	}
-	return wazero.NewModuleConfig()
+
+	cfg := wazero.NewModuleConfig()
+
+	if e.EnvsFromHost {
+		for _, env := range os.Environ() {
+			key, value, _ := strings.Cut(env, "=")
+			cfg = cfg.WithEnv(key, value)
+		}
+	}
+
+	if e.ArgsFromHost {
+		cfg = cfg.WithArgs(os.Args...)
+	}
+
+	if e.StdinFromHost {
+		cfg = cfg.WithStdin(os.Stdin)
+	}
+
+	if e.StdoutFromHost {
+		cfg = cfg.WithStdout(os.Stdout)
+	}
+
+	if e.StderrFromHost {
+		cfg = cfg.WithStderr(os.Stderr)
+	}
+
+	if e.FSFromHost {
+		if runtime.GOOS == "windows" {
+			wd, err := os.Getwd()
+			if err != nil {
+				cfg = cfg.WithFS(os.DirFS("C:\\"))
+			} else {
+				cfg = cfg.WithFS(os.DirFS(filepath.VolumeName(wd) + "\\"))
+			}
+		} else {
+			cfg = cfg.WithFS(os.DirFS("/"))
+		}
+	}
+
+	if e.RandSourceFromHost {
+		cfg = cfg.WithRandSource(rand.Reader)
+	}
+
+	if e.WallTimeFromHost {
+		cfg = cfg.WithSysWalltime()
+	}
+
+	if e.NanoTimeFromHost {
+		cfg = cfg.WithSysNanotime()
+	}
+
+	if e.NanoSleepFromHost {
+		cfg = cfg.WithSysNanosleep()
+	}
+
+	cfg.WithStartFunctions(e.StartFunctions...)
+
+	return cfg
 }
 
 // MakeRuntimeConfig returns the runtime configuration based on the environment.
@@ -209,5 +271,10 @@ func (e *Environment) MakePluginConfig() extism.PluginConfig {
 	if e.PluginConfig != nil {
 		return *e.PluginConfig
 	}
-	return extism.PluginConfig{}
+	return extism.PluginConfig{
+		RuntimeConfig:              e.MakeRuntimeConfig(),
+		EnableWasi:                 !e.DisableWASIP1,
+		ModuleConfig:               e.MakeModuleConfig(),
+		ModuleConfigBypassManifest: true,
+	}
 }

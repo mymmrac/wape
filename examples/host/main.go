@@ -8,7 +8,6 @@ import (
 	"runtime"
 
 	extism "github.com/extism/go-sdk"
-	"github.com/tetratelabs/wazero"
 
 	wasmgate "github.com/mymmrac/wasm-gate"
 )
@@ -21,14 +20,12 @@ func main() {
 	env.Manifest = &extism.Manifest{
 		Wasm: []extism.Wasm{
 			&extism.WasmFile{
-				Path: "./examples/plugins/hello/main.wasm",
+				Path: "./examples/plugins/rand_guess/main.wasm",
 			},
 		},
 	}
-	env.PluginConfig = &extism.PluginConfig{
-		ModuleConfig: wazero.NewModuleConfig().WithStdout(os.Stdout),
-		EnableWasi:   true,
-	}
+	env.StdinFromHost = true
+	env.StdoutFromHost = true
 
 	plugin, err := wasmgate.NewPlugin(ctx, env)
 	assert(err == nil, err)
