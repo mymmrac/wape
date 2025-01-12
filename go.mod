@@ -3,6 +3,7 @@ module github.com/mymmrac/wasm-gate
 go 1.23.4
 
 require (
+	github.com/extism/go-pdk v1.1.0
 	github.com/extism/go-sdk v1.6.1
 	github.com/tetratelabs/wazero v1.8.2
 )
