@@ -8,7 +8,7 @@ require (
 	github.com/tetratelabs/wazero v1.8.2
 )
 
-replace github.com/extism/go-sdk => github.com/mymmrac/extism-go-sdk v0.0.0-20250109172127-8d6c4588106e
+replace github.com/extism/go-sdk => github.com/mymmrac/extism-go-sdk v0.0.0-20250113193923-c2ac5d84d254
 
 require (
 	github.com/dylibso/observe-sdk/go v0.0.0-20240819160327-2d926c5d788a // indirect

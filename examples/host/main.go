@@ -30,6 +30,7 @@ func main() {
 
 	env.StdinFromHost = true
 	env.StdoutFromHost = true
+	env.FSFromHost = true
 	env.WallTimeFromHost = true
 	env.NanoTimeFromHost = true
 	env.NanoSleepFromHost = true
@@ -48,6 +49,8 @@ func main() {
 			if err != nil {
 				panic(err)
 			}
+
+			// TODO: Validate network and address
 
 			conn, err := net.Dial(network, addr)
 			if err != nil {

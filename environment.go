@@ -290,9 +290,8 @@ func (e *Environment) MakePluginConfig() extism.PluginConfig {
 		return *e.PluginConfig
 	}
 	return extism.PluginConfig{
-		RuntimeConfig:              e.MakeRuntimeConfig(),
-		EnableWasi:                 !e.DisableWASIP1,
-		ModuleConfig:               e.MakeModuleConfig(),
-		ModuleConfigBypassManifest: true,
+		RuntimeConfig: e.MakeRuntimeConfig(),
+		EnableWasi:    !e.DisableWASIP1,
+		ModuleConfig:  e.MakeModuleConfig(),
 	}
 }

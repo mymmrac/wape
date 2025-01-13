@@ -2,10 +2,13 @@ package main
 
 import (
 	"context"
+	"crypto/tls"
+	"crypto/x509"
 	"fmt"
 	"io"
 	"net"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/extism/go-pdk"
@@ -13,16 +16,30 @@ import (
 
 //go:wasmexport main
 func main() {
+	certPool := x509.NewCertPool()
+
+	data, err := os.ReadFile("/etc/ssl/certs/ca-certificates.crt")
+	if err != nil {
+		panic(err)
+	}
+
+	if !certPool.AppendCertsFromPEM(data) {
+		panic("append certificates")
+	}
+
 	d := &dialer{}
 
 	tr := http.DefaultTransport.(*http.Transport).Clone()
 	tr.DialContext = d.DialContext
+	tr.TLSClientConfig = &tls.Config{
+		RootCAs: certPool,
+	}
 
 	client := &http.Client{
 		Transport: tr,
 	}
 
-	resp, err := client.Get("http://example.com")
+	resp, err := client.Get("https://example.com")
 	if err != nil {
 		fmt.Println("Error get:", err)
 		return
