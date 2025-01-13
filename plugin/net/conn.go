@@ -10,26 +10,26 @@ import (
 	"github.com/mymmrac/wasm-gate/plugin/io"
 )
 
-//go:wasmimport extism:host/user net.conn.read
-func _read(connectionID int32, data uint64) int32
+//go:wasmimport wasm-gate:host/env net.conn.read
+func _read(connID int32, data uint64) int32
 
-//go:wasmimport extism:host/user net.conn.write
-func _write(connectionID int32, data uint64) int32
+//go:wasmimport wasm-gate:host/env net.conn.write
+func _write(connID int32, data uint64) int32
 
 type Conn struct {
-	connectionID int32
+	connID int32
 }
 
 func (c *Conn) Read(b []byte) (n int, err error) {
 	dataMem := pdk.Allocate(len(b))
 	defer dataMem.Free()
 
-	ioHandle := _read(c.connectionID, dataMem.Offset())
-	if ioHandle < 0 {
-		return 0, fmt.Errorf("failed to start read: %d", ioHandle)
+	handle := _read(c.connID, dataMem.Offset())
+	if handle < 0 {
+		return 0, fmt.Errorf("failed to start read: %d", handle)
 	}
 
-	readBytes := io.Ready(ioHandle)
+	readBytes := io.Ready(handle)
 	if readBytes < 0 {
 		return 0, fmt.Errorf("failed to read: %d", readBytes)
 	}
@@ -42,12 +42,12 @@ func (c *Conn) Write(b []byte) (n int, err error) {
 	dataMem := pdk.AllocateBytes(b)
 	defer dataMem.Free()
 
-	ioHandle := _write(c.connectionID, dataMem.Offset())
-	if ioHandle < 0 {
-		return 0, fmt.Errorf("failed to start write: %d", ioHandle)
+	handle := _write(c.connID, dataMem.Offset())
+	if handle < 0 {
+		return 0, fmt.Errorf("failed to start write: %d", handle)
 	}
 
-	writeBytes := io.Ready(ioHandle)
+	writeBytes := io.Ready(handle)
 	if writeBytes < 0 {
 		return 0, fmt.Errorf("failed to write: %d", writeBytes)
 	}

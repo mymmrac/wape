@@ -2,13 +2,13 @@ package io
 
 import "time"
 
-//go:wasmimport extism:host/user io.ready
-func _ready(ioHandle int32) int32
+//go:wasmimport wasm-gate:host/env io.ready
+func _ready(handle int32) int32
 
-func Ready(ioHandle int32) int32 {
+func Ready(handle int32) int32 {
 	var result int32
 	for {
-		result = _ready(ioHandle)
+		result = _ready(handle)
 		if result != 0 {
 			return result
 		}
