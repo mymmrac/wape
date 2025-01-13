@@ -10,8 +10,6 @@ import (
 	extism "github.com/extism/go-sdk"
 
 	wasmgate "github.com/mymmrac/wasm-gate"
-	"github.com/mymmrac/wasm-gate/host/io"
-	"github.com/mymmrac/wasm-gate/host/net"
 )
 
 func main() {
@@ -29,17 +27,16 @@ func main() {
 
 	env.StdinFromHost = true
 	env.StdoutFromHost = true
+
 	env.FSFromHost = true
+
 	env.WallTimeFromHost = true
 	env.NanoTimeFromHost = true
 	env.NanoSleepFromHost = true
 
-	env.HostFunctions = []extism.HostFunction{
-		io.Ready(env),
-		net.Dial(env),
-		net.ConnRead(env),
-		net.ConnWrite(env),
-	}
+	env.NetworkEnabled = true
+	env.NetworksAllowAll = true
+	env.NetworkAddressesAllowAll = true
 
 	plugin, err := wasmgate.NewPlugin(ctx, env)
 	assert(err == nil, err)

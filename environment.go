@@ -13,6 +13,9 @@ import (
 
 	extism "github.com/extism/go-sdk"
 	"github.com/tetratelabs/wazero"
+
+	wio "github.com/mymmrac/wasm-gate/host/io"
+	wnet "github.com/mymmrac/wasm-gate/host/net"
 )
 
 // Environment configures the behavior of WASM module.
@@ -158,7 +161,18 @@ type Environment struct {
 
 	// ==== Network ====
 
-	// TODO: Add network access
+	// NetworkEnabled toggles network access. Defaults to false.
+	NetworkEnabled bool
+
+	// NetworksAllowed configures the allowed network protocols. See [net.Dial] for allowed protocols. Defaults to none.
+	NetworksAllowed []string
+	// NetworksAllowAll allows all network protocols. Defaults to false.
+	NetworksAllowAll bool
+
+	// NetworkAddressesAllowed configures the allowed network addresses. Defaults to none.
+	NetworkAddressesAllowed []string
+	// NetworkAddressesAllowAll allows all network addresses. Defaults to false.
+	NetworkAddressesAllowAll bool
 
 	// ==== WASI ====
 
@@ -294,4 +308,27 @@ func (e *Environment) MakePluginConfig() extism.PluginConfig {
 		EnableWasi:    !e.DisableWASIP1,
 		ModuleConfig:  e.MakeModuleConfig(),
 	}
+}
+
+// MakeHostFunctions returns the host functions based on the environment.
+func (e *Environment) MakeHostFunctions() []extism.HostFunction {
+	functions := make([]extism.HostFunction, 0, len(e.HostFunctions))
+
+	if e.NetworkEnabled {
+		functions = append(functions, wio.Ready())
+	}
+
+	if e.NetworkEnabled {
+		functions = append(functions, wnet.Dial(wnet.DialConfig{
+			NetworksAllowed:          e.NetworksAllowed,
+			NetworksAllowAll:         e.NetworksAllowAll,
+			NetworkAddressesAllowed:  e.NetworkAddressesAllowed,
+			NetworkAddressesAllowAll: e.NetworkAddressesAllowAll,
+		}))
+		functions = append(functions, wnet.ConnRead())
+		functions = append(functions, wnet.ConnWrite())
+	}
+
+	functions = append(functions, e.HostFunctions...)
+	return functions
 }

@@ -6,11 +6,10 @@ import (
 
 	extism "github.com/extism/go-sdk"
 
-	wasmgate "github.com/mymmrac/wasm-gate"
 	"github.com/mymmrac/wasm-gate/internal"
 )
 
-func ConnRead(_ *wasmgate.Environment) extism.HostFunction {
+func ConnRead() extism.HostFunction {
 	return internal.NewHostFunction("net.conn.read",
 		func(ctx context.Context, p *extism.CurrentPlugin, stack []uint64) {
 			connectionID := extism.DecodeI32(stack[0])
@@ -43,7 +42,7 @@ func ConnRead(_ *wasmgate.Environment) extism.HostFunction {
 	)
 }
 
-func ConnWrite(_ *wasmgate.Environment) extism.HostFunction {
+func ConnWrite() extism.HostFunction {
 	return internal.NewHostFunction("net.conn.write",
 		func(ctx context.Context, p *extism.CurrentPlugin, stack []uint64) {
 			connectionID := extism.DecodeI32(stack[0])

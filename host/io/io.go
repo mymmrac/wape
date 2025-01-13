@@ -5,11 +5,10 @@ import (
 
 	extism "github.com/extism/go-sdk"
 
-	wasmgate "github.com/mymmrac/wasm-gate"
 	"github.com/mymmrac/wasm-gate/internal"
 )
 
-func Ready(_ *wasmgate.Environment) extism.HostFunction {
+func Ready() extism.HostFunction {
 	return internal.NewHostFunction("io.ready",
 		func(ctx context.Context, p *extism.CurrentPlugin, stack []uint64) {
 			handle := extism.DecodeI32(stack[0])
