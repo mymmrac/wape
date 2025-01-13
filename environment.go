@@ -2,6 +2,7 @@ package wasmgate
 
 import (
 	"crypto/rand"
+	"fmt"
 	"io"
 	"io/fs"
 	"os"
@@ -151,6 +152,10 @@ type Environment struct {
 	// DebugInfoEnabled toggles DWARF-based stack traces in the face of runtime errors. Defaults to false.
 	DebugInfoEnabled bool
 
+	// ExtismDebugEnvAllowed allows use of EXTISM_ENABLE_WASI_OUTPUT environment variable. Defaults to false (unsets
+	// this variable, so it will not work for all WASM modules).
+	ExtismDebugEnvAllowed bool
+
 	// ==== Network ====
 
 	// TODO: Add network access
@@ -255,7 +260,20 @@ func (e *Environment) MakeRuntimeConfig() wazero.RuntimeConfig {
 	if e.RuntimeConfig != nil {
 		return e.RuntimeConfig
 	}
-	return wazero.NewRuntimeConfig()
+
+	cfg := wazero.NewRuntimeConfig()
+
+	cfg = cfg.WithDebugInfoEnabled(e.DebugInfoEnabled)
+
+	if !e.ExtismDebugEnvAllowed {
+		const env = "EXTISM_ENABLE_WASI_OUTPUT"
+		err := os.Unsetenv(env)
+		if err != nil {
+			panic(fmt.Errorf("unset %q environment variable: %w", env, err))
+		}
+	}
+
+	return cfg
 }
 
 // MakeManifest returns the manifest based on the environment.
