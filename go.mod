@@ -3,11 +3,9 @@ module github.com/mymmrac/wasm-gate
 go 1.23.4
 
 require (
-	github.com/extism/go-sdk v1.6.1
+	github.com/extism/go-sdk v1.6.2-0.20250116090044-1e14b805dc52
 	github.com/tetratelabs/wazero v1.8.2
 )
-
-replace github.com/extism/go-sdk => github.com/mymmrac/extism-go-sdk v0.0.0-20250113193923-c2ac5d84d254
 
 require (
 	github.com/dylibso/observe-sdk/go v0.0.0-20240819160327-2d926c5d788a // indirect
