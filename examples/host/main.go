@@ -17,11 +17,11 @@ func main() {
 	defer cancel()
 
 	env := wasmgate.NewEnvironment()
-	env.Manifest = &extism.Manifest{
-		Wasm: []extism.Wasm{
-			&extism.WasmFile{
-				Path: "./plugins/http/main.wasm",
-			},
+
+	env.Modules = []wasmgate.ModuleData{
+		{
+			Name: "main",
+			File: "./plugins/http/main.wasm",
 		},
 	}
 
@@ -38,7 +38,12 @@ func main() {
 	env.NetworksAllowAll = true
 	env.NetworkAddressesAllowAll = true
 
-	plugin, err := wasmgate.NewPlugin(ctx, env)
+	cmPlugin, err := wasmgate.NewCompiledPlugin(ctx, env)
+	assert(err == nil, err)
+
+	plugin, err := cmPlugin.Instance(ctx, extism.PluginInstanceConfig{
+		ModuleConfig: env.MakeModuleConfig(),
+	})
 	assert(err == nil, err)
 
 	exit, _, err := plugin.CallWithContext(ctx, "main", nil)

@@ -17,11 +17,13 @@ func main() {
 
 	data, err := os.ReadFile("/etc/ssl/certs/ca-certificates.crt")
 	if err != nil {
-		panic(err)
+		fmt.Println("Error read cert:", err)
+		return
 	}
 
 	if !certPool.AppendCertsFromPEM(data) {
-		panic("append certificates")
+		fmt.Println("Invalid cert")
+		return
 	}
 
 	tr := http.DefaultTransport.(*http.Transport).Clone()

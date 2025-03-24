@@ -197,6 +197,34 @@ type Environment struct {
 
 	// HostFunctions host functions available to the guest WASM module.
 	HostFunctions []extism.HostFunction
+
+	// ==== WASM Modules ====
+
+	// Modules configures the WASM modules.
+	Modules []ModuleData
+}
+
+// ModuleData represents WASM module with name and data.
+type ModuleData struct {
+	// Name of the WASM module.
+	Name string
+
+	// Source of WASM module.
+	Data []byte
+
+	// File path to read WASM module.
+	File string
+
+	// Url to download WASM module.
+	Url string
+	// Method to download WASM module.
+	// Defaults to "GET".
+	HttpMethod string
+	// Headers to download WASM module.
+	HttpHeaders map[string]string
+
+	// SHA256 hash of WASM module to validate it.
+	Hash string
 }
 
 // NewEnvironment returns a new environment.
@@ -295,7 +323,41 @@ func (e *Environment) MakeManifest() extism.Manifest {
 	if e.Manifest != nil {
 		return *e.Manifest
 	}
-	return extism.Manifest{}
+
+	manifest := extism.Manifest{}
+
+	for _, module := range e.Modules {
+		var wasm extism.Wasm
+
+		switch {
+		case module.Data != nil:
+			wasm = &extism.WasmData{
+				Data: module.Data,
+				Hash: module.Hash,
+				Name: module.Name,
+			}
+		case module.File != "":
+			wasm = &extism.WasmFile{
+				Path: module.File,
+				Hash: module.Hash,
+				Name: module.Name,
+			}
+		case module.Url != "":
+			wasm = &extism.WasmUrl{
+				Url:     module.Url,
+				Hash:    module.Hash,
+				Headers: module.HttpHeaders,
+				Name:    module.Name,
+				Method:  module.HttpMethod,
+			}
+		default:
+			continue
+		}
+
+		manifest.Wasm = append(manifest.Wasm, wasm)
+	}
+
+	return manifest
 }
 
 // MakePluginConfig returns the plugin configuration based on the environment.
