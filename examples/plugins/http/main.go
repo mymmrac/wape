@@ -7,6 +7,7 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/mymmrac/wasm-gate/plugin/net"
 )
@@ -36,7 +37,9 @@ func main() {
 		Transport: tr,
 	}
 
+	start := time.Now()
 	resp, err := client.Get("https://example.com")
+	fmt.Println("Time:", time.Since(start))
 	if err != nil {
 		fmt.Println("Error get:", err)
 		return
