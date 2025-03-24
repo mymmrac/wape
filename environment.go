@@ -192,6 +192,8 @@ type Environment struct {
 	Manifest *extism.Manifest
 	// PluginConfig is the plugin configuration that can be provided instead of configuration above.
 	PluginConfig *extism.PluginConfig
+	// PluginInstanceConfig is the plugin instance configuration that can be provided instead of configuration above.
+	PluginInstanceConfig *extism.PluginInstanceConfig
 
 	// ==== Host Functions ====
 
@@ -295,6 +297,17 @@ func (e *Environment) MakeModuleConfig() wazero.ModuleConfig {
 	cfg.WithStartFunctions(e.StartFunctions...)
 
 	return cfg
+}
+
+// MakePluginInstanceConfig returns the plugin instance configuration based on the environment.
+func (e *Environment) MakePluginInstanceConfig() extism.PluginInstanceConfig {
+	if e.PluginInstanceConfig != nil {
+		return *e.PluginInstanceConfig
+	}
+
+	return extism.PluginInstanceConfig{
+		ModuleConfig: e.MakeModuleConfig(),
+	}
 }
 
 // MakeRuntimeConfig returns the runtime configuration based on the environment.

@@ -7,8 +7,6 @@ import (
 	"os/signal"
 	"runtime"
 
-	extism "github.com/extism/go-sdk"
-
 	wasmgate "github.com/mymmrac/wasm-gate"
 )
 
@@ -41,9 +39,7 @@ func main() {
 	cmPlugin, err := wasmgate.NewCompiledPlugin(ctx, env)
 	assert(err == nil, err)
 
-	plugin, err := cmPlugin.Instance(ctx, extism.PluginInstanceConfig{
-		ModuleConfig: env.MakeModuleConfig(),
-	})
+	plugin, err := cmPlugin.Instance(ctx, env.MakePluginInstanceConfig())
 	assert(err == nil, err)
 
 	exit, _, err := plugin.CallWithContext(ctx, "main", nil)
