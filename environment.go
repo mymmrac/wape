@@ -142,7 +142,7 @@ type Environment struct {
 	// ==== Memory ====
 
 	// MemoryLimitPages overrides the maximum pages allowed per memory. Defaults to 65536, allowing 4GB total memory
-	// per instance if the maximum is not encoded in a Wasm binary. Max is 65536 (2^16) pages or 4GB.
+	// per instance if the maximum is not encoded in a WASM binary. Max is 65536 (2^16) pages or 4GB.
 	MemoryLimitPages uint32
 
 	// MemoryCapacityFromMax eagerly allocates max memory. Defaults to false, which means minimum memory is
@@ -420,6 +420,12 @@ func (e *Environment) MakeRuntimeConfig() wazero.RuntimeConfig {
 	cfg := wazero.NewRuntimeConfig()
 
 	cfg = cfg.WithDebugInfoEnabled(e.DebugInfoEnabled)
+
+	if e.MemoryLimitPages != 0 {
+		cfg = cfg.WithMemoryLimitPages(e.MemoryLimitPages)
+	}
+
+	cfg = cfg.WithMemoryCapacityFromMax(e.MemoryCapacityFromMax)
 
 	if !e.ExtismDebugEnvAllowed {
 		const env = "EXTISM_ENABLE_WASI_OUTPUT"
