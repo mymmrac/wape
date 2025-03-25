@@ -13,6 +13,7 @@ import (
 
 	extism "github.com/extism/go-sdk"
 	"github.com/tetratelabs/wazero"
+	"github.com/tetratelabs/wazero/sys"
 
 	wio "github.com/mymmrac/wasm-gate/host/io"
 	wnet "github.com/mymmrac/wasm-gate/host/net"
@@ -108,7 +109,9 @@ type Environment struct {
 
 	// WallTime returns the current unix/epoch time, seconds since midnight UTC 1 January 1970,
 	// with a nanosecond fraction.
-	WallTime func() (sec int64, ns int32)
+	WallTime sys.Walltime
+	// WallTimeClockResolution configures the resolution of the wall clock, defaults to 1ns.
+	WallTimeClockResolution sys.ClockResolution
 	// WallTimeFromHost pass thought wall time from the host.
 	WallTimeFromHost bool
 
@@ -117,7 +120,9 @@ type Environment struct {
 
 	// NanoTime returns nanoseconds since an arbitrary start point, used to measure elapsed time.
 	// This is sometimes referred to as a tick or monotonic time.
-	NanoTime func() int64
+	NanoTime sys.Nanotime
+	// NanoTimeClockResolution configures the resolution of the nano clock, defaults to 1ns.
+	NanoTimeClockResolution sys.ClockResolution
 	// NanoTimeFromHost pass thought nano time from the host.
 	NanoTimeFromHost bool
 
@@ -125,7 +130,7 @@ type Environment struct {
 	// Defaults to always return immediately.
 
 	// NanoSleep puts the current goroutine to sleep for at least ns nanoseconds.
-	NanoSleep func(ns int64)
+	NanoSleep sys.Nanosleep
 	// NanoSleepFromHost pass thought nano sleep from the host.
 	NanoSleepFromHost bool
 
@@ -352,20 +357,43 @@ func (e *Environment) MakeModuleConfig() wazero.ModuleConfig {
 		cfg = cfg.WithFS(e.FS)
 	}
 
-	if e.RandSourceFromHost {
+	switch {
+	case e.RandSourceFromHost:
 		cfg = cfg.WithRandSource(rand.Reader)
+	case e.RandSourceFile != "":
+		randSource, err := os.Open(e.RandSourceFile)
+		if err == nil {
+			cfg = cfg.WithRandSource(randSource)
+		}
+	case e.RandSource != nil:
+		cfg = cfg.WithRandSource(e.RandSource)
 	}
 
-	if e.WallTimeFromHost {
+	switch {
+	case e.WallTimeFromHost:
 		cfg = cfg.WithSysWalltime()
+	case e.WallTime != nil:
+		if e.WallTimeClockResolution == 0 {
+			e.WallTimeClockResolution = 1 // 1ns
+		}
+		cfg = cfg.WithWalltime(e.WallTime, e.WallTimeClockResolution)
 	}
 
-	if e.NanoTimeFromHost {
+	switch {
+	case e.NanoTimeFromHost:
 		cfg = cfg.WithSysNanotime()
+	case e.NanoTime != nil:
+		if e.NanoTimeClockResolution == 0 {
+			e.NanoTimeClockResolution = 1 // 1ns
+		}
+		cfg = cfg.WithNanotime(e.NanoTime, e.NanoTimeClockResolution)
 	}
 
-	if e.NanoSleepFromHost {
+	switch {
+	case e.NanoSleepFromHost:
 		cfg = cfg.WithSysNanosleep()
+	case e.NanoSleep != nil:
+		cfg = cfg.WithNanosleep(e.NanoSleep)
 	}
 
 	cfg.WithStartFunctions(e.StartFunctions...)
