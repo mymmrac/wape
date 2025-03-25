@@ -242,15 +242,45 @@ func (e *Environment) MakeModuleConfig() wazero.ModuleConfig {
 
 	cfg := wazero.NewModuleConfig()
 
-	if e.EnvsFromHost {
+	switch {
+	case e.EnvsFromHost:
 		for _, env := range os.Environ() {
+			key, value, _ := strings.Cut(env, "=")
+			cfg = cfg.WithEnv(key, value)
+		}
+	case e.EnvsFile != "":
+		envs, err := os.ReadFile(e.EnvsFile)
+		if err == nil {
+			for env := range strings.Lines(string(envs)) {
+				env = strings.TrimSpace(env)
+				if env == "" {
+					continue
+				}
+				key, value, _ := strings.Cut(env, "=")
+				cfg = cfg.WithEnv(key, value)
+			}
+		}
+	case len(e.EnvsMap) > 0:
+		for key, value := range e.EnvsMap {
+			cfg = cfg.WithEnv(key, value)
+		}
+	case len(e.Envs) > 0:
+		for _, env := range e.Envs {
 			key, value, _ := strings.Cut(env, "=")
 			cfg = cfg.WithEnv(key, value)
 		}
 	}
 
-	if e.ArgsFromHost {
+	switch {
+	case e.ArgsFromHost:
 		cfg = cfg.WithArgs(os.Args...)
+	case e.ArgsFile != "":
+		args, err := os.ReadFile(e.ArgsFile)
+		if err == nil {
+			cfg = cfg.WithArgs(strings.Fields(string(args))...)
+		}
+	case len(e.Args) > 0:
+		cfg = cfg.WithArgs(e.Args...)
 	}
 
 	if e.StdinFromHost {
