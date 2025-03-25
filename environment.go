@@ -88,11 +88,10 @@ type Environment struct {
 	// FSDir configures the filesystem as a root directory.
 	FSDir string
 	// FSAllowedPaths configures the allowed filesystem paths that will be mapped in WASM module.
+	// Host paths prefixed with "ro:" are marked as read-only.
 	FSAllowedPaths map[string]string
 	// FSFromHost pass thought filesystem from the host.
 	FSFromHost bool
-
-	// TODO: Add file permissions + create/remove files
 
 	// ==== Random Source ====
 	// Defaults to a deterministic source.
