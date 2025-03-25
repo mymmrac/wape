@@ -319,7 +319,8 @@ func (e *Environment) MakeModuleConfig() wazero.ModuleConfig {
 		cfg = cfg.WithStderr(e.Stderr)
 	}
 
-	if e.FSFromHost {
+	switch {
+	case e.FSFromHost:
 		if runtime.GOOS == "windows" {
 			wd, err := os.Getwd()
 			if err != nil {
@@ -330,6 +331,25 @@ func (e *Environment) MakeModuleConfig() wazero.ModuleConfig {
 		} else {
 			cfg = cfg.WithFS(os.DirFS("/"))
 		}
+	case len(e.FSAllowedPaths) > 0:
+		fsCfg := wazero.NewFSConfig()
+		for host, guest := range e.FSAllowedPaths {
+			if strings.HasPrefix(host, "ro:") {
+				fsCfg = fsCfg.WithReadOnlyDirMount(strings.TrimPrefix(host, "ro:"), guest)
+			} else {
+				fsCfg = fsCfg.WithDirMount(host, guest)
+			}
+		}
+		cfg = cfg.WithFSConfig(fsCfg)
+	case e.FSDir != "":
+		root, err := os.OpenRoot(e.FSDir)
+		if err == nil {
+			cfg = cfg.WithFS(root.FS())
+		}
+	case e.FSConfig != nil:
+		cfg = cfg.WithFSConfig(e.FSConfig)
+	case e.FS != nil:
+		cfg = cfg.WithFS(e.FS)
 	}
 
 	if e.RandSourceFromHost {
