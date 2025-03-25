@@ -283,16 +283,40 @@ func (e *Environment) MakeModuleConfig() wazero.ModuleConfig {
 		cfg = cfg.WithArgs(e.Args...)
 	}
 
-	if e.StdinFromHost {
+	switch {
+	case e.StdinFromHost:
 		cfg = cfg.WithStdin(os.Stdin)
+	case e.StdinFile != "":
+		stdin, err := os.Open(e.StdinFile)
+		if err == nil {
+			cfg = cfg.WithStdin(stdin)
+		}
+	case e.Stdin != nil:
+		cfg = cfg.WithStdin(e.Stdin)
 	}
 
-	if e.StdoutFromHost {
+	switch {
+	case e.StdoutFromHost:
 		cfg = cfg.WithStdout(os.Stdout)
+	case e.StdoutFile != "":
+		stdout, err := os.OpenFile(e.StdoutFile, os.O_WRONLY|os.O_CREATE, 0644)
+		if err == nil {
+			cfg = cfg.WithStdout(stdout)
+		}
+	case e.Stdout != nil:
+		cfg = cfg.WithStdout(e.Stdout)
 	}
 
-	if e.StderrFromHost {
+	switch {
+	case e.StderrFromHost:
 		cfg = cfg.WithStderr(os.Stderr)
+	case e.StderrFile != "":
+		stderr, err := os.OpenFile(e.StderrFile, os.O_WRONLY|os.O_CREATE, 0644)
+		if err == nil {
+			cfg = cfg.WithStderr(stderr)
+		}
+	case e.Stderr != nil:
+		cfg = cfg.WithStderr(e.Stderr)
 	}
 
 	if e.FSFromHost {
