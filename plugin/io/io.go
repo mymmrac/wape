@@ -2,7 +2,7 @@ package io
 
 import "time"
 
-//go:wasmimport wasm-gate:host/env io.ready
+//go:wasmimport wape:host/env io.ready
 func _ready(handle int32) int32
 
 func Ready(handle int32) int32 {

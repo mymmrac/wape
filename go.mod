@@ -1,4 +1,4 @@
-module github.com/mymmrac/wasm-gate
+module github.com/mymmrac/wape
 
 go 1.24.1
 

@@ -8,7 +8,7 @@ import (
 	"github.com/extism/go-pdk"
 )
 
-//go:wasmimport wasm-gate:host/env net.dial
+//go:wasmimport wape:host/env net.dial
 func _dial(network, addr uint64) int32
 
 var DefaultDialer = &Dialer{}

@@ -7,16 +7,16 @@ import (
 	"os/signal"
 	"runtime"
 
-	wasmgate "github.com/mymmrac/wasm-gate"
+	"github.com/mymmrac/wape"
 )
 
 func main() {
 	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt)
 	defer cancel()
 
-	env := wasmgate.NewEnvironment()
+	env := wape.NewEnvironment()
 
-	env.Modules = []wasmgate.ModuleData{
+	env.Modules = []wape.ModuleData{
 		{
 			Name: "main",
 			File: "./plugins/http/main.wasm",
@@ -36,7 +36,7 @@ func main() {
 	env.NetworksAllowAll = true
 	env.NetworkAddressesAllowAll = true
 
-	cmPlugin, err := wasmgate.NewCompiledPlugin(ctx, env)
+	cmPlugin, err := wape.NewCompiledPlugin(ctx, env)
 	assert(err == nil, err)
 
 	plugin, err := cmPlugin.Instance(ctx, env.MakePluginInstanceConfig())

@@ -9,7 +9,7 @@ import (
 	"os"
 	"time"
 
-	"github.com/mymmrac/wasm-gate/plugin/net"
+	"github.com/mymmrac/wape/plugin/net"
 )
 
 //go:wasmexport main

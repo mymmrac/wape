@@ -1,7 +1,7 @@
-# :space_invader: WASM Gate
+# :space_invader: WAPE
 
-WASM Gate is a wrapper for creating/running [Extism](https://extism.org) plugins (or just programs) which is based on
-[Wazero](https://wazero.io) zero dependency WASM runtime for Go.
+WAPE (WebAssembly Plugin Engine) is a wrapper for creating/running [Extism](https://extism.org) plugins (or just
+programs) which is based on [Wazero](https://wazero.io) zero dependency WASM runtime for Go.
 
 The main goal of this project is to provide a simple way to create and run WASM modules with very flexible policy based
 access to host resources with additional host functions for different use-cases.

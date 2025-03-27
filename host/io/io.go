@@ -5,7 +5,7 @@ import (
 
 	extism "github.com/extism/go-sdk"
 
-	"github.com/mymmrac/wasm-gate/internal"
+	"github.com/mymmrac/wape/internal"
 )
 
 func Ready() extism.HostFunction {

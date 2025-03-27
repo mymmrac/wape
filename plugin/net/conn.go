@@ -7,13 +7,13 @@ import (
 
 	"github.com/extism/go-pdk"
 
-	"github.com/mymmrac/wasm-gate/plugin/io"
+	"github.com/mymmrac/wape/plugin/io"
 )
 
-//go:wasmimport wasm-gate:host/env net.conn.read
+//go:wasmimport wape:host/env net.conn.read
 func _read(connID int32, data uint64) int32
 
-//go:wasmimport wasm-gate:host/env net.conn.write
+//go:wasmimport wape:host/env net.conn.write
 func _write(connID int32, data uint64) int32
 
 type Conn struct {

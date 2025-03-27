@@ -1,5 +1,5 @@
-module github.com/mymmrac/wasm-gate/plugin
+module github.com/mymmrac/wape/plugin
 
-go 1.23.4
+go 1.24.1
 
-require github.com/extism/go-pdk v1.1.0
+require github.com/extism/go-pdk v1.1.3

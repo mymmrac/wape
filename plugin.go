@@ -1,4 +1,4 @@
-package wasmgate
+package wape
 
 import (
 	"context"

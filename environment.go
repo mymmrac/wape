@@ -1,4 +1,4 @@
-package wasmgate
+package wape
 
 import (
 	"crypto/rand"
@@ -15,8 +15,8 @@ import (
 	"github.com/tetratelabs/wazero"
 	"github.com/tetratelabs/wazero/sys"
 
-	wio "github.com/mymmrac/wasm-gate/host/io"
-	wnet "github.com/mymmrac/wasm-gate/host/net"
+	wio "github.com/mymmrac/wape/host/io"
+	wnet "github.com/mymmrac/wape/host/net"
 )
 
 // Environment configures the behavior of WASM module.
@@ -426,6 +426,10 @@ func (e *Environment) MakeRuntimeConfig() wazero.RuntimeConfig {
 	}
 
 	cfg = cfg.WithMemoryCapacityFromMax(e.MemoryCapacityFromMax)
+
+	// TODO: Add WithCompilationCache
+	// TODO: Add WithCustomSections
+	// TODO: Add WithCloseOnContextDone
 
 	if !e.ExtismDebugEnvAllowed {
 		const env = "EXTISM_ENABLE_WASI_OUTPUT"
