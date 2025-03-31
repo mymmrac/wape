@@ -24,222 +24,222 @@ import (
 // Note: Many environment configurations override each other, for example providing ModuleConfig will override all
 // other configurations related to envs, args, FS, etc. Be aware that you may end up with unexpected behavior.
 //
-// TODO: Add json/yaml/toml tags
+// TODO: Add yaml/toml tags
 type Environment struct {
 	// ==== Envs ====
 	// Defaults to none.
 
 	// Envs sets an environment variables.
-	Envs []string
+	Envs []string `json:"envs,omitempty"`
 	// EnvsMap sets an environment variables as a map.
-	EnvsMap map[string]string
+	EnvsMap map[string]string `json:"envsMap,omitempty"`
 	// EnvsFile sets an environment variables from a file.
-	EnvsFile string
+	EnvsFile string `json:"envsFile,omitempty"`
 	// EnvsFromHost pass thought environment variables from the host.
-	EnvsFromHost bool
+	EnvsFromHost bool `json:"envsFromHost,omitempty"`
 
 	// ==== Args ====
 	// Defaults to none.
 
 	// Args assigns command-line arguments.
-	Args []string
+	Args []string `json:"args,omitempty"`
 	// ArgsFile assigns command-line arguments from a file.
-	ArgsFile string
+	ArgsFile string `json:"argsFile,omitempty"`
 	// ArgsFromHost pass thought command-line arguments from the host.
-	ArgsFromHost bool
+	ArgsFromHost bool `json:"argsFromHost,omitempty"`
 
 	// ==== Stdin ====
 	// Defaults to always return io.EOF.
 
 	// Stdin configures where standard input (file descriptor 0) is read.
-	Stdin io.Reader
+	Stdin io.Reader `json:"-"`
 	// StdinFile configures standard input (file descriptor 0) to read from a file.
-	StdinFile string
+	StdinFile string `json:"stdinFile,omitempty"`
 	// StdinFromHost pass thought stdin from the host.
-	StdinFromHost bool
+	StdinFromHost bool `json:"stdinFromHost,omitempty"`
 
 	// ==== Stdout ====
 	// Defaults to io.Discard.
 
 	// Stdout configures where standard output (file descriptor 1) is written.
-	Stdout io.Writer
+	Stdout io.Writer `json:"-"`
 	// StdoutFile configures standard output (file descriptor 1) to write to a file.
-	StdoutFile string
+	StdoutFile string `json:"stdoutFile,omitempty"`
 	// StdoutFromHost pass thought stdout from the host.
-	StdoutFromHost bool
+	StdoutFromHost bool `json:"stdoutFromHost,omitempty"`
 
 	// ==== Stderr ====
 	// Defaults to io.Discard.
 
 	// Stderr configures where standard error (file descriptor 2) is written.
-	Stderr io.Writer
+	Stderr io.Writer `json:"-"`
 	// StderrFile configures standard error (file descriptor 2) to write to a file.
-	StderrFile string
+	StderrFile string `json:"stderrFile,omitempty"`
 	// StderrFromHost pass thought stderr from the host.
-	StderrFromHost bool
+	StderrFromHost bool `json:"stderrFromHost,omitempty"`
 
 	// ==== FS ====
 	// Defaults to have no file access.
 
 	// FS configures the filesystem.
-	FS fs.FS
+	FS fs.FS `json:"-"`
 	// FSFile configures the filesystem mount points.
-	FSConfig wazero.FSConfig
+	FSConfig wazero.FSConfig `json:"-"`
 	// FSDir configures the filesystem as a root directory.
-	FSDir string
+	FSDir string `json:"fsDir,omitempty"`
 	// FSAllowedPaths configures the allowed filesystem paths that will be mapped in WASM module.
 	// Host paths prefixed with "ro:" are marked as read-only.
-	FSAllowedPaths map[string]string
+	FSAllowedPaths map[string]string `json:"fsAllowedPaths,omitempty"`
 	// FSFromHost pass thought filesystem from the host.
-	FSFromHost bool
+	FSFromHost bool `json:"fsFromHost,omitempty"`
 
 	// ==== Random Source ====
 	// Defaults to a deterministic source.
 
 	// RandSource configures a source of random bytes.
-	RandSource io.Reader
+	RandSource io.Reader `json:"-"`
 	// RandSourceFile configures a source of random bytes from a file.
-	RandSourceFile string
+	RandSourceFile string `json:"randSourceFile,omitempty"`
 	// RandSourceFromHost pass thought random source from the host.
-	RandSourceFromHost bool
+	RandSourceFromHost bool `json:"randSourceFromHost,omitempty"`
 
 	// ==== Wall Time ====
 	// Defaults to always return UTC 1 January 1970.
 
 	// WallTime returns the current unix/epoch time, seconds since midnight UTC 1 January 1970,
 	// with a nanosecond fraction.
-	WallTime sys.Walltime
+	WallTime sys.Walltime `json:"-"`
 	// WallTimeClockResolution configures the resolution of the wall clock, defaults to 1ns.
-	WallTimeClockResolution sys.ClockResolution
+	WallTimeClockResolution sys.ClockResolution `json:"-"`
 	// WallTimeFromHost pass thought wall time from the host.
-	WallTimeFromHost bool
+	WallTimeFromHost bool `json:"wallTimeFromHost,omitempty"`
 
 	// ==== Nano Time ====
 	// Defaults to always return 0.
 
 	// NanoTime returns nanoseconds since an arbitrary start point, used to measure elapsed time.
 	// This is sometimes referred to as a tick or monotonic time.
-	NanoTime sys.Nanotime
+	NanoTime sys.Nanotime `json:"-"`
 	// NanoTimeClockResolution configures the resolution of the nano clock, defaults to 1ns.
-	NanoTimeClockResolution sys.ClockResolution
+	NanoTimeClockResolution sys.ClockResolution `json:"-"`
 	// NanoTimeFromHost pass thought nano time from the host.
-	NanoTimeFromHost bool
+	NanoTimeFromHost bool `json:"nanoTimeFromHost,omitempty"`
 
 	// ==== Nano Sleep ====
 	// Defaults to always return immediately.
 
 	// NanoSleep puts the current goroutine to sleep for at least ns nanoseconds.
-	NanoSleep sys.Nanosleep
+	NanoSleep sys.Nanosleep `json:"-"`
 	// NanoSleepFromHost pass thought nano sleep from the host.
-	NanoSleepFromHost bool
+	NanoSleepFromHost bool `json:"nanoSleepFromHost,omitempty"`
 
 	// ==== Start Functions ====
 	// Defaults to none.
 
 	// StartFunctions configures the functions to call after the module is instantiated.
-	StartFunctions []string
+	StartFunctions []string `json:"startFunctions,omitempty"`
 
 	// ==== Memory ====
 
 	// MemoryLimitPages overrides the maximum pages allowed per memory. Defaults to 65536, allowing 4GB total memory
 	// per instance if the maximum is not encoded in a WASM binary. Max is 65536 (2^16) pages or 4GB.
-	MemoryLimitPages uint32
+	MemoryLimitPages uint32 `json:"memoryLimitPages,omitempty"`
 
 	// MemoryCapacityFromMax eagerly allocates max memory. Defaults to false, which means minimum memory is
 	// allocated and any call to grow memory results in re-allocations.
-	MemoryCapacityFromMax bool
+	MemoryCapacityFromMax bool `json:"memoryCapacityFromMax,omitempty"`
 
 	// ==== Execution Time ====
 
 	// MaxExecutionDuration limits the maximum function execution time.
 	// Rounded to milliseconds and has a minimum of 1ms. Defaults to 0 (no limit).
-	MaxExecutionDuration time.Duration
+	MaxExecutionDuration time.Duration `json:"maxExecutionDuration,omitempty"`
 
 	// ==== Debug ====
 
 	// DebugInfoEnabled toggles DWARF-based stack traces in the face of runtime errors. Defaults to false.
-	DebugInfoEnabled bool
+	DebugInfoEnabled bool `json:"debugInfoEnabled,omitempty"`
 
 	// ExtismDebugEnvAllowed allows use of EXTISM_ENABLE_WASI_OUTPUT environment variable. Defaults to false (unsets
 	// this variable, so it will not work for all WASM modules).
-	ExtismDebugEnvAllowed bool
+	ExtismDebugEnvAllowed bool `json:"extismDebugEnvAllowed,omitempty"`
 
 	// ==== Network ====
 
 	// NetworkEnabled toggles network access. Defaults to false.
-	NetworkEnabled bool
+	NetworkEnabled bool `json:"networkEnabled,omitempty"`
 
 	// NetworksAllowed configures the allowed network protocols. See [net.Dial] for allowed protocols. Defaults to none.
-	NetworksAllowed []string
+	NetworksAllowed []string `json:"networksAllowed,omitempty"`
 	// NetworksAllowAll allows all network protocols. Defaults to false.
-	NetworksAllowAll bool
+	NetworksAllowAll bool `json:"networksAllowAll,omitempty"`
 
 	// NetworkAddressesAllowed configures the allowed network addresses. Defaults to none.
-	NetworkAddressesAllowed []string
+	NetworkAddressesAllowed []string `json:"networkAddressesAllowed,omitempty"`
 	// NetworkAddressesAllowAll allows all network addresses. Defaults to false.
-	NetworkAddressesAllowAll bool
+	NetworkAddressesAllowAll bool `json:"networkAddressesAllowAll,omitempty"`
 
 	// ==== WASI ====
 
 	// DisableWASI disables WASI Preview 1 support. Defaults to false.
-	DisableWASIP1 bool
+	DisableWASI bool `json:"disableWASI,omitempty"`
 
 	// ==== Wazero ===
 
 	// CompilationCache configures the compilation cache.
-	CompilationCache wazero.CompilationCache
+	CompilationCache wazero.CompilationCache `json:"-"`
 	// CompilationCacheDir configures the compilation cache directory.
-	CompilationCacheDir string
+	CompilationCacheDir string `json:"compilationCacheDir,omitempty"`
 
 	// CustomSectionsEnabled configures whether to enable custom sections.
-	CustomSectionsEnabled bool
+	CustomSectionsEnabled bool `json:"customSectionsEnabled,omitempty"`
 
 	// ModuleConfig configures the WASM module.
-	ModuleConfig wazero.ModuleConfig
+	ModuleConfig wazero.ModuleConfig `json:"-"`
 	// RuntimeConfig configures the WASM runtime.
-	RuntimeConfig wazero.RuntimeConfig
+	RuntimeConfig wazero.RuntimeConfig `json:"-"`
 
 	// ==== Extism ====
 
 	// Manifest is the plugin manifest that can be provided instead of configuration above.
-	Manifest *extism.Manifest
+	Manifest *extism.Manifest `json:"manifest,omitempty"`
 	// PluginConfig is the plugin configuration that can be provided instead of configuration above.
-	PluginConfig *extism.PluginConfig
+	PluginConfig *extism.PluginConfig `json:"-"`
 	// PluginInstanceConfig is the plugin instance configuration that can be provided instead of configuration above.
-	PluginInstanceConfig *extism.PluginInstanceConfig
+	PluginInstanceConfig *extism.PluginInstanceConfig `json:"-"`
 
 	// ==== Host Functions ====
 
 	// HostFunctions host functions available to the guest WASM module.
-	HostFunctions []extism.HostFunction
+	HostFunctions []extism.HostFunction `json:"-"`
 
 	// ==== WASM Modules ====
 
 	// Modules configures the WASM modules.
-	Modules []ModuleData
+	Modules []ModuleData `json:"modules,omitempty"`
 }
 
 // ModuleData represents WASM module with name and data.
 type ModuleData struct {
 	// Name of the WASM module.
-	Name string
+	Name string `json:"name"`
 
 	// Source of WASM module.
-	Data []byte
+	Data []byte `json:"data,omitempty"`
 
 	// File path to read WASM module.
-	File string
+	File string `json:"file,omitempty"`
 
 	// Url to download WASM module.
-	Url string
+	Url string `json:"url,omitempty"`
 	// Method to download WASM module.
 	// Defaults to "GET".
-	HttpMethod string
+	HttpMethod string `json:"httpMethod,omitempty"`
 	// Headers to download WASM module.
-	HttpHeaders map[string]string
+	HttpHeaders map[string]string `json:"httpHeaders,omitempty"`
 
 	// SHA256 hash of WASM module to validate it.
-	Hash string
+	Hash string `json:"hash,omitempty"`
 }
 
 // NewEnvironment returns a new environment.
@@ -516,7 +516,7 @@ func (e *Environment) MakePluginConfig() extism.PluginConfig {
 	}
 	return extism.PluginConfig{
 		RuntimeConfig: e.MakeRuntimeConfig(),
-		EnableWasi:    !e.DisableWASIP1,
+		EnableWasi:    !e.DisableWASI,
 		ModuleConfig:  e.MakeModuleConfig(),
 	}
 }
