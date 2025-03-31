@@ -188,6 +188,8 @@ type Environment struct {
 
 	// CompilationCache configures the compilation cache.
 	CompilationCache wazero.CompilationCache
+	// CompilationCacheDir configures the compilation cache directory.
+	CompilationCacheDir string
 
 	// CustomSectionsEnabled configures whether to enable custom sections.
 	CustomSectionsEnabled bool
@@ -434,7 +436,13 @@ func (e *Environment) MakeRuntimeConfig() wazero.RuntimeConfig {
 
 	cfg = cfg.WithMemoryCapacityFromMax(e.MemoryCapacityFromMax)
 
-	if e.CompilationCache != nil {
+	switch {
+	case e.CompilationCacheDir != "":
+		cache, err := wazero.NewCompilationCacheWithDir(e.CompilationCacheDir)
+		if err == nil {
+			cfg = cfg.WithCompilationCache(cache)
+		}
+	case e.CompilationCache != nil:
 		cfg = cfg.WithCompilationCache(e.CompilationCache)
 	}
 

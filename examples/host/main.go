@@ -6,6 +6,7 @@ import (
 	"os"
 	"os/signal"
 	"runtime"
+	"time"
 
 	"github.com/mymmrac/wape"
 )
@@ -23,6 +24,8 @@ func main() {
 		},
 	}
 
+	env.CompilationCacheDir = "/tmp/wazero-cache"
+
 	env.StdinFromHost = true
 	env.StdoutFromHost = true
 
@@ -36,7 +39,10 @@ func main() {
 	env.NetworksAllowAll = true
 	env.NetworkAddressesAllowAll = true
 
+	start := time.Now()
 	cmPlugin, err := wape.NewCompiledPlugin(ctx, env)
+	fmt.Println("Time:", time.Since(start))
+
 	assert(err == nil, err)
 
 	plugin, err := cmPlugin.Instance(ctx, env.MakePluginInstanceConfig())
