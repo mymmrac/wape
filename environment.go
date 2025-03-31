@@ -151,7 +151,8 @@ type Environment struct {
 
 	// ==== Execution Time ====
 
-	// MaxExecutionDuration limits the maximum execution time. Defaults to 0 (no limit).
+	// MaxExecutionDuration limits the maximum function execution time.
+	// Rounded to milliseconds and has a minimum of 1ms. Defaults to 0 (no limit).
 	MaxExecutionDuration time.Duration
 
 	// ==== Debug ====
@@ -429,7 +430,10 @@ func (e *Environment) MakeRuntimeConfig() wazero.RuntimeConfig {
 
 	// TODO: Add WithCompilationCache
 	// TODO: Add WithCustomSections
-	// TODO: Add WithCloseOnContextDone
+
+	if e.MaxExecutionDuration > 0 {
+		cfg = cfg.WithCloseOnContextDone(true)
+	}
 
 	if !e.ExtismDebugEnvAllowed {
 		const env = "EXTISM_ENABLE_WASI_OUTPUT"
@@ -449,6 +453,10 @@ func (e *Environment) MakeManifest() extism.Manifest {
 	}
 
 	manifest := extism.Manifest{}
+
+	if e.MaxExecutionDuration > 0 {
+		manifest.Timeout = min(uint64(e.MaxExecutionDuration.Round(time.Millisecond).Milliseconds()), 1)
+	}
 
 	for _, module := range e.Modules {
 		var wasm extism.Wasm
