@@ -2,6 +2,7 @@ package net
 
 import (
 	"context"
+	"fmt"
 	"math/rand/v2"
 	"net"
 	"slices"
@@ -11,6 +12,7 @@ import (
 	"github.com/mymmrac/wape/internal"
 )
 
+// DialConfig configures [Dial].
 type DialConfig struct {
 	// NetworksAllowed configures the allowed network protocols. See [net.Dial] for allowed protocols. Defaults to none.
 	NetworksAllowed []string
@@ -23,6 +25,7 @@ type DialConfig struct {
 	NetworkAddressesAllowAll bool
 }
 
+// Dial creates a host function that calls [net.Dial].
 func Dial(cfg DialConfig) extism.HostFunction {
 	return internal.NewHostFunction("net.dial",
 		func(ctx context.Context, p *extism.CurrentPlugin, stack []uint64) {
@@ -32,7 +35,7 @@ func Dial(cfg DialConfig) extism.HostFunction {
 			}
 
 			if !cfg.NetworksAllowAll && !slices.Contains(cfg.NetworksAllowed, network) {
-				panic("network not allowed")
+				panic(fmt.Errorf("network not allowed: %s", network))
 			}
 
 			addr, err := p.ReadString(stack[1])
@@ -41,7 +44,7 @@ func Dial(cfg DialConfig) extism.HostFunction {
 			}
 
 			if !cfg.NetworkAddressesAllowAll && !slices.Contains(cfg.NetworkAddressesAllowed, addr) {
-				panic("address not allowed")
+				panic(fmt.Errorf("address not allowed: %s", addr))
 			}
 
 			conn, err := net.Dial(network, addr)
@@ -53,6 +56,8 @@ func Dial(cfg DialConfig) extism.HostFunction {
 			internal.Connections.Set(connID, conn)
 
 			stack[0] = extism.EncodeI32(connID)
-		}, []extism.ValueType{extism.ValueTypePTR, extism.ValueTypePTR}, []extism.ValueType{extism.ValueTypeI32},
+		},
+		[]extism.ValueType{extism.ValueTypePTR /* network */, extism.ValueTypePTR /* address */},
+		[]extism.ValueType{extism.ValueTypeI32 /* connectionID | errorCode */},
 	)
 }

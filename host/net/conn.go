@@ -9,6 +9,7 @@ import (
 	"github.com/mymmrac/wape/internal"
 )
 
+// ConnRead reads data from a connection.
 func ConnRead() extism.HostFunction {
 	return internal.NewHostFunction("net.conn.read",
 		func(ctx context.Context, p *extism.CurrentPlugin, stack []uint64) {
@@ -38,10 +39,13 @@ func ConnRead() extism.HostFunction {
 			}()
 
 			stack[0] = extism.EncodeI32(handle)
-		}, []extism.ValueType{extism.ValueTypeI32, extism.ValueTypePTR}, []extism.ValueType{extism.ValueTypeI32},
+		},
+		[]extism.ValueType{extism.ValueTypeI32 /* connectionID */, extism.ValueTypePTR /* readDestination */},
+		[]extism.ValueType{extism.ValueTypeI32 /* ioHandle | errorCode */},
 	)
 }
 
+// ConnWrite writes data to a connection.
 func ConnWrite() extism.HostFunction {
 	return internal.NewHostFunction("net.conn.write",
 		func(ctx context.Context, p *extism.CurrentPlugin, stack []uint64) {
@@ -71,6 +75,8 @@ func ConnWrite() extism.HostFunction {
 			}()
 
 			stack[0] = extism.EncodeI32(handle)
-		}, []extism.ValueType{extism.ValueTypeI32, extism.ValueTypePTR}, []extism.ValueType{extism.ValueTypeI32},
+		},
+		[]extism.ValueType{extism.ValueTypeI32 /* connectionID */, extism.ValueTypePTR /* writeSource */},
+		[]extism.ValueType{extism.ValueTypeI32 /* ioHandle | errorCode */},
 	)
 }
