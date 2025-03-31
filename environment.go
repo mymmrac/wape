@@ -186,6 +186,12 @@ type Environment struct {
 
 	// ==== Wazero ===
 
+	// CompilationCache configures the compilation cache.
+	CompilationCache wazero.CompilationCache
+
+	// CustomSectionsEnabled configures whether to enable custom sections.
+	CustomSectionsEnabled bool
+
 	// ModuleConfig configures the WASM module.
 	ModuleConfig wazero.ModuleConfig
 	// RuntimeConfig configures the WASM runtime.
@@ -428,8 +434,11 @@ func (e *Environment) MakeRuntimeConfig() wazero.RuntimeConfig {
 
 	cfg = cfg.WithMemoryCapacityFromMax(e.MemoryCapacityFromMax)
 
-	// TODO: Add WithCompilationCache
-	// TODO: Add WithCustomSections
+	if e.CompilationCache != nil {
+		cfg = cfg.WithCompilationCache(e.CompilationCache)
+	}
+
+	cfg = cfg.WithCustomSections(e.CustomSectionsEnabled)
 
 	if e.MaxExecutionDuration > 0 {
 		cfg = cfg.WithCloseOnContextDone(true)
