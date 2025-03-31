@@ -8,6 +8,7 @@ import (
 	"github.com/mymmrac/wape/internal"
 )
 
+// Ready returns a host function that waits for IO to finish.
 func Ready() extism.HostFunction {
 	return internal.NewHostFunction("io.ready",
 		func(ctx context.Context, p *extism.CurrentPlugin, stack []uint64) {
@@ -24,6 +25,8 @@ func Ready() extism.HostFunction {
 			if result != 0 {
 				internal.IOHandles.Delete(handle)
 			}
-		}, []extism.ValueType{extism.ValueTypeI32}, []extism.ValueType{extism.ValueTypeI32},
+		},
+		[]extism.ValueType{extism.ValueTypeI32 /* ioHandle */},
+		[]extism.ValueType{extism.ValueTypeI32 /* result | errorCode */},
 	)
 }
