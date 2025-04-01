@@ -470,7 +470,7 @@ func (e *Environment) MakeManifest() extism.Manifest {
 	manifest := extism.Manifest{}
 
 	if e.MaxExecutionDuration > 0 {
-		manifest.Timeout = min(uint64(e.MaxExecutionDuration.Round(time.Millisecond).Milliseconds()), 1)
+		manifest.Timeout = max(uint64(e.MaxExecutionDuration.Round(time.Millisecond).Milliseconds()), 1)
 	}
 
 	for _, module := range e.Modules {
