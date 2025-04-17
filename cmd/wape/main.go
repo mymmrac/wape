@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"os"
 	"os/signal"
@@ -35,15 +36,18 @@ var rootCmd = &cobra.Command{
 }
 
 var (
-	envFilepath string
-	funcName    string
-	input       string
+	envFilepath  string
+	funcName     string
+	input        string
+	debugEnabled bool
 )
 
 func init() {
 	rootCmd.Flags().StringVarP(&envFilepath, "env", "e", "", "WAPE environment file (toml)")
 	rootCmd.Flags().StringVarP(&funcName, "func", "f", "main", "function to call")
 	rootCmd.Flags().StringVarP(&input, "input", "i", "", "input data")
+	rootCmd.Flags().BoolVar(&debugEnabled, "debug", false, "debug mode")
+	_ = rootCmd.Flags().MarkHidden("debug")
 }
 
 func run(cmd *cobra.Command, args []string) error {
@@ -77,6 +81,16 @@ func run(cmd *cobra.Command, args []string) error {
 
 	if len(env.Modules) == 0 {
 		return fmt.Errorf("no WASM modules specified")
+	}
+
+	if debugEnabled {
+		envData, err := json.MarshalIndent(env, "", "  ")
+		if err != nil {
+			return fmt.Errorf("failed to marshal the environment: %w", err)
+		}
+		fmt.Println("Environment:")
+		fmt.Println(string(envData))
+		fmt.Println()
 	}
 
 	ctx := cmd.Context()
