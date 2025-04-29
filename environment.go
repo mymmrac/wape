@@ -536,6 +536,7 @@ func (e *Environment) MakeHostFunctions() []extism.HostFunction {
 		}))
 		functions = append(functions, wnet.ConnRead())
 		functions = append(functions, wnet.ConnWrite())
+		functions = append(functions, wnet.ConnClose())
 	}
 
 	functions = append(functions, e.HostFunctions...)

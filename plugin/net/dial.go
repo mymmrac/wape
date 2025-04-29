@@ -8,9 +8,6 @@ import (
 	"github.com/extism/go-pdk"
 )
 
-//go:wasmimport wape:host/env net.dial
-func _dial(network, addr uint64) int32
-
 var DefaultDialer = &Dialer{}
 
 type Dialer struct{}
@@ -18,6 +15,9 @@ type Dialer struct{}
 func (d *Dialer) Dial(network, addr string) (net.Conn, error) {
 	return d.DialContext(context.Background(), network, addr)
 }
+
+//go:wasmimport wape:host/env net.dial
+func _dial(network, addr uint64) int32
 
 func (d *Dialer) DialContext(_ context.Context, network, addr string) (net.Conn, error) {
 	networkMem := pdk.AllocateString(network)

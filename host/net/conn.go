@@ -80,3 +80,23 @@ func ConnWrite() extism.HostFunction {
 		[]extism.ValueType{extism.ValueTypeI32 /* ioHandle | errorCode */},
 	)
 }
+
+// ConnClose closes the connection.
+func ConnClose() extism.HostFunction {
+	return internal.NewHostFunction("net.conn.close",
+		func(ctx context.Context, p *extism.CurrentPlugin, stack []uint64) {
+			connectionID := extism.DecodeI32(stack[0])
+
+			conn := internal.Connections.Get(connectionID)
+
+			var result int32
+			if err := conn.Close(); err != nil {
+				result = -1
+			}
+
+			stack[0] = extism.EncodeI32(result)
+		},
+		[]extism.ValueType{extism.ValueTypeI32 /* connectionID */},
+		[]extism.ValueType{extism.ValueTypeI32 /* errorCode */},
+	)
+}

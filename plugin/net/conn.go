@@ -10,15 +10,12 @@ import (
 	"github.com/mymmrac/wape/plugin/io"
 )
 
-//go:wasmimport wape:host/env net.conn.read
-func _read(connID int32, data uint64) int32
-
-//go:wasmimport wape:host/env net.conn.write
-func _write(connID int32, data uint64) int32
-
 type Conn struct {
 	connID int32
 }
+
+//go:wasmimport wape:host/env net.conn.read
+func _read(connID int32, data uint64) int32
 
 func (c *Conn) Read(b []byte) (n int, err error) {
 	dataMem := pdk.Allocate(len(b))
@@ -38,6 +35,9 @@ func (c *Conn) Read(b []byte) (n int, err error) {
 	return int(readBytes), nil
 }
 
+//go:wasmimport wape:host/env net.conn.write
+func _write(connID int32, data uint64) int32
+
 func (c *Conn) Write(b []byte) (n int, err error) {
 	dataMem := pdk.AllocateBytes(b)
 	defer dataMem.Free()
@@ -55,7 +55,14 @@ func (c *Conn) Write(b []byte) (n int, err error) {
 	return int(writeBytes), nil
 }
 
+//go:wasmimport wape:host/env net.conn.close
+func _close(connID int32) int32
+
 func (c *Conn) Close() error {
+	result := _close(c.connID)
+	if result < 0 {
+		return fmt.Errorf("failed to close: %d", result)
+	}
 	return nil
 }
 
