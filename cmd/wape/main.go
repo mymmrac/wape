@@ -41,6 +41,9 @@ var (
 	input        string
 	debugEnabled bool
 
+	stdinFromHost      bool
+	stdoutFromHost     bool
+	stderrFromHost     bool
 	randSourceFromHost bool
 )
 
@@ -49,6 +52,9 @@ func init() {
 	rootCmd.Flags().StringVarP(&funcName, "func", "f", "main", "function to call")
 	rootCmd.Flags().StringVarP(&input, "input", "i", "", "input data")
 	rootCmd.Flags().BoolVar(&debugEnabled, "debug", false, "debug mode")
+	rootCmd.Flags().BoolVar(&stdinFromHost, "stdin-host", false, "stdin from host")
+	rootCmd.Flags().BoolVar(&stdoutFromHost, "stdout-host", false, "stdout from host")
+	rootCmd.Flags().BoolVar(&stderrFromHost, "stderr-host", false, "stderr from host")
 	rootCmd.Flags().BoolVar(&randSourceFromHost, "rand-host", false, "random from host")
 	_ = rootCmd.Flags().MarkHidden("debug")
 }
@@ -86,6 +92,15 @@ func run(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("no WASM modules specified")
 	}
 
+	if stdinFromHost {
+		env.StdinFromHost = true
+	}
+	if stdoutFromHost {
+		env.StdoutFromHost = true
+	}
+	if stderrFromHost {
+		env.StderrFromHost = true
+	}
 	if randSourceFromHost {
 		env.RandSourceFromHost = true
 	}
