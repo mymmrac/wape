@@ -47,7 +47,8 @@ func Dial(cfg DialConfig) extism.HostFunction {
 				panic(fmt.Errorf("address not allowed: %s", addr))
 			}
 
-			conn, err := net.Dial(network, addr)
+			dialer := &net.Dialer{}
+			conn, err := dialer.DialContext(ctx, network, addr)
 			if err != nil {
 				panic(err)
 			}

@@ -528,6 +528,7 @@ func (e *Environment) MakeHostFunctions() []extism.HostFunction {
 	}
 
 	if e.NetworkEnabled {
+		functions = append(functions, wnet.LookupHost())
 		functions = append(functions, wnet.Dial(wnet.DialConfig{
 			NetworksAllowed:          e.NetworksAllowed,
 			NetworksAllowAll:         e.NetworksAllowAll,
