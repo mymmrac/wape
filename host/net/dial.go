@@ -14,6 +14,10 @@ import (
 
 // DialConfig configures [Dial].
 type DialConfig struct {
+	// NetworkFilter allows to create custom filtering for networks and addresses.
+	// Takes priority over networks and addresses configurations if present. Defaults to nil.
+	NetworkFilter func(ctx context.Context, network, address string) (bool, error)
+
 	// NetworksAllowed configures the allowed network protocols. See [net.Dial] for allowed protocols. Defaults to none.
 	NetworksAllowed []string
 	// NetworksAllowAll allows all network protocols. Defaults to false.
@@ -34,7 +38,8 @@ func Dial(cfg DialConfig) extism.HostFunction {
 				panic(err)
 			}
 
-			if !cfg.NetworksAllowAll && !slices.Contains(cfg.NetworksAllowed, network) {
+			if cfg.NetworkFilter == nil && !cfg.NetworksAllowAll &&
+				!slices.Contains(cfg.NetworksAllowed, network) {
 				panic(fmt.Errorf("network not allowed: %s", network))
 			}
 
@@ -43,8 +48,21 @@ func Dial(cfg DialConfig) extism.HostFunction {
 				panic(err)
 			}
 
-			if !cfg.NetworkAddressesAllowAll && !slices.Contains(cfg.NetworkAddressesAllowed, addr) {
+			if cfg.NetworkFilter == nil && !cfg.NetworkAddressesAllowAll &&
+				!slices.Contains(cfg.NetworkAddressesAllowed, addr) {
 				panic(fmt.Errorf("address not allowed: %s", addr))
+			}
+
+			if cfg.NetworkFilter != nil {
+				var allowed bool
+				allowed, err = cfg.NetworkFilter(ctx, network, addr)
+				if err != nil {
+					panic(fmt.Errorf("network filter: %w", err))
+				}
+
+				if !allowed {
+					panic(fmt.Errorf("not allowed network and/or address"))
+				}
 			}
 
 			dialer := &net.Dialer{}

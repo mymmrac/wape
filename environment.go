@@ -1,6 +1,7 @@
 package wape
 
 import (
+	"context"
 	"crypto/rand"
 	"fmt"
 	"io"
@@ -166,6 +167,10 @@ type Environment struct {
 
 	// NetworkEnabled toggles network access. Defaults to false.
 	NetworkEnabled bool `json:"networkEnabled,omitempty" yaml:"networkEnabled,omitempty" toml:"networkEnabled,omitempty"`
+
+	// NetworkFilter allows to create custom filtering for networks and addresses.
+	// Takes priority over networks and addresses configurations if present. Defaults to nil.
+	NetworkFilter func(ctx context.Context, network, address string) (bool, error)
 
 	// NetworksAllowed configures the allowed network protocols. See [net.Dial] for allowed protocols. Defaults to none.
 	NetworksAllowed []string `json:"networksAllowed,omitempty" yaml:"networksAllowed,omitempty" toml:"networksAllowed,omitempty"`
@@ -530,6 +535,7 @@ func (e *Environment) MakeHostFunctions() []extism.HostFunction {
 	if e.NetworkEnabled {
 		functions = append(functions, wnet.LookupHost())
 		functions = append(functions, wnet.Dial(wnet.DialConfig{
+			NetworkFilter:            e.NetworkFilter,
 			NetworksAllowed:          e.NetworksAllowed,
 			NetworksAllowAll:         e.NetworksAllowAll,
 			NetworkAddressesAllowed:  e.NetworkAddressesAllowed,
